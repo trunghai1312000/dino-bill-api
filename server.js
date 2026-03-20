@@ -108,6 +108,27 @@ app.post('/api/trips/:id/expenses', async (req, res) => {
   }
 });
 
+// ── Webhook API dành cho Zalo Mini App ───────────────────────────────
+// API này nhận Webhook từ Zalo (ví dụ: tracking users, zma notifications)
+app.post('/api/zalo/webhook', async (req, res) => {
+  try {
+    const eventData = req.body;
+    
+    // Log toàn bộ dữ liệu do Zalo bắn về để tiện theo dõi trên Console của Render
+    console.log('📦 [ZALO WEBHOOK] Đã nhận sự kiện từ Zalo:', JSON.stringify(eventData, null, 2));
+
+    // Yêu cầu quan trọng của Zalo: Bắt buộc trả về HTTP 200 OK 
+    // trong vòng tối đa 3 giây, nếu không Zalo sẽ tự động gởi đi gởi lại (spam)
+    return res.status(200).json({ 
+      error: 0,
+      message: 'Đã nhận webhook thành công'
+    });
+  } catch (err) {
+    console.error('❌ [ZALO WEBHOOK ERROR]:', err);
+    return res.status(500).json({ error: 1, message: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Backend chạy tại http://localhost:${PORT}`);
